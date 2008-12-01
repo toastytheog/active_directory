@@ -4,7 +4,7 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 
 desc 'Build Gem and Packages for Rubyforge'
-task :default => [ :clobber_package, :package, :gem ]
+task :default => [ :repackage ]
 
 spec = Gem::Specification.new do |gem|
 	gem.name     = "activedirectory"
@@ -30,6 +30,7 @@ end
 
 Rake::GemPackageTask.new(spec) do |pkg|
 	pkg.gem_spec = spec
+	pkg.need_tar = true # Generate a tarball everytime we build
 end
 
 Rake::RDocTask.new do |rdoc|
