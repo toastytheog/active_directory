@@ -3,6 +3,9 @@ Gem::manage_gems
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 
+desc 'Build Gem and Packages for Rubyforge'
+task :default => [ :clobber_package, :package, :gem ]
+
 spec = Gem::Specification.new do |gem|
 	gem.name     = "activedirectory"
 	gem.version  = "1.0.1"
@@ -16,6 +19,7 @@ spec = Gem::Specification.new do |gem|
 	gem.author   = "James R Hunt"
 	gem.email    = "james@niftylogic.net"
 	gem.homepage = "http://gems.niftylogic.net/activedirectory"
+	gem.rubyforge_project = "activedirectory"
 
 	gem.files        = FileList["lib/**/*.rb"]
 	gem.require_path = "lib"
