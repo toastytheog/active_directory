@@ -5,8 +5,8 @@ require 'rake/rdoctask'
 
 spec = Gem::Specification.new do |gem|
 	gem.name     = "activedirectory"
-	gem.version  = "0.9.1"
-	gem.date     = "2008-07-23"
+	gem.version  = "1.0.1"
+	gem.date     = "2008-12-01"
 	gem.summary  = "An interface library for accessing Microsoft's Active Directory."
 	gem.description = "ActiveDirectory uses Net::LDAP to provide a means of accessing and modifying an Active Directory data store."
 
