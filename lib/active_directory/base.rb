@@ -164,12 +164,12 @@ module ActiveDirectory
 				:filter => NIL_FILTER,
 				:in => ''
 			}
-			options.merge!(args[1]) unless args[1].nil?
+			options.merge!(:filter => args[1]) unless args[1].nil?
 			options[:in] = [ options[:in].to_s, @@settings[:base] ].delete_if { |part| part.empty? }.join(",")
 			if options[:filter].is_a? Hash
 				options[:filter] = make_filter_from_hash(options[:filter])
 			end
-			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
+      options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
 			
 			if (args.first == :all)
 				find_all(options)
