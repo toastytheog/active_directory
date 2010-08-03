@@ -390,6 +390,7 @@ module ActiveDirectory
 				elsif @entry
 					begin
 						value = @entry.send(name)
+            value = value.first if value.kind_of? Array
 						value = value.to_s if value.nil? || value.size == 1
 						return value
 					rescue NoMethodError
