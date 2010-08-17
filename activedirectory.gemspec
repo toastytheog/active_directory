@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{activedirectory}
-  s.version = "1.0.3"
+  s.version = "1.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James R Hunt"]
-  s.date = %q{2010-08-03}
+  s.date = %q{2010-08-17}
   s.description = %q{ActiveDirectory uses Net::LDAP to provide a means of accessing and modifying an Active Directory data store.}
   s.email = %q{filefrog@gmail.com}
   s.extra_rdoc_files = [
