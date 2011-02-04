@@ -72,6 +72,11 @@ module ActiveDirectory
 			"#{@@ldap.get_operation_result.code}: #{@@ldap.get_operation_result.message}"
 		end
 
+		def self.connected?
+			@@ldap.bind
+			#Also try @@ldap.getoperationresult
+		end
+
 		def self.filter # :nodoc:
 			NIL_FILTER 
 		end
@@ -122,16 +127,19 @@ module ActiveDirectory
 			!@attributes.empty?
 		end
 
-		def self.make_filter_from_hash(filter_as_hash) # :nodoc:
-			return NIL_FILTER if filter_as_hash.nil? || filter_as_hash.empty?
-			keys = filter_as_hash.keys
+		def self.make_filter_from_hash(hash) # :nodoc:
+			return NIL_FILTER if hash.nil? || hash.empty?
 
-			first_key = keys.delete(keys[0])
-			f = Net::LDAP::Filter.eq(first_key, filter_as_hash[first_key].to_s)
-			keys.each do |key|
-				f = f & Net::LDAP::Filter.eq(key, filter_as_hash[key].to_s)
+			#I'm sure there's a better way to do this
+			#Grab the first one, then do the rest
+			key, value = hash.shift
+			f = Net::LDAP::Filter.eq(key, value.to_s)
+			
+			hash.each do |key, value|
+				f = f & Net::LDAP::Filter.eq(key, value.to_s)
 			end
-			f
+
+			return f
 		end
 
 		#
@@ -170,6 +178,10 @@ module ActiveDirectory
 				options[:filter] = make_filter_from_hash(options[:filter])
 			end
 			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
+			
+			message = options.inspect
+			puts "  \e[36mAD:\e[0m #{message}"
+
 			
 			if (args.first == :all)
 				find_all(options)
@@ -221,7 +233,14 @@ module ActiveDirectory
 
 		def ==(other) # :nodoc:
 			return false if other.nil?
-			other.distinguishedName == distinguishedName
+			other.guid == guid
+		end
+
+		#
+		# Returns the GUID in a sane, hexidecimal format
+		#
+		def guid
+          objectGUID.bytes.collect {|b| format("%x", b)}.join
 		end
 
 		#
