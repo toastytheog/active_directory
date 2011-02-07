@@ -72,6 +72,10 @@ module ActiveDirectory
 			"#{@@ldap.get_operation_result.code}: #{@@ldap.get_operation_result.message}"
 		end
 
+		def self.error_code
+			@@ldap.get_operation_result.code
+		end
+
 		def self.connected?
 			@@ldap.bind
 			#Also try @@ldap.getoperationresult
