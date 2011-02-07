@@ -183,10 +183,6 @@ module ActiveDirectory
 			end
 			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
 			
-			message = options.inspect
-			puts "  \e[36mAD:\e[0m #{message}"
-
-			
 			if (args.first == :all)
 				find_all(options)
 			elsif (args.first == :first)
