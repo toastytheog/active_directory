@@ -240,7 +240,12 @@ module ActiveDirectory
 		# Returns the GUID in a sane, hexidecimal format
 		#
 		def guid
-          objectGUID.bytes.collect {|b| format("%x", b)}.join
+    	objectGuid.unpack("H*")
+		end
+
+		# Conver the GUID back to binary
+		def convertGuid(guid)
+			guid.to_a.pack("H*")
 		end
 
 		#
