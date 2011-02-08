@@ -233,19 +233,7 @@ module ActiveDirectory
 
 		def ==(other) # :nodoc:
 			return false if other.nil?
-			other.guid == guid
-		end
-
-		#
-		# Returns the GUID in a sane, hexidecimal format
-		#
-		def guid
-    	objectGuid.unpack("H*")
-		end
-
-		# Conver the GUID back to binary
-		def convertGuid(guid)
-			guid.to_a.pack("H*")
+			other.objectGUID == objectGUID
 		end
 
 		#
