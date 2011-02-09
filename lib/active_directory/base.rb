@@ -76,9 +76,16 @@ module ActiveDirectory
 			@@ldap.get_operation_result.code
 		end
 
+		def self.error?
+			!success?
+		end
+
+		def self.success?
+			@@ldap.get_operation_result.code == 0
+		end
+
 		def self.connected?
 			@@ldap.bind
-			#Also try @@ldap.getoperationresult
 		end
 
 		def self.filter # :nodoc:
