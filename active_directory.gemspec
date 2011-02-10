@@ -16,6 +16,11 @@ Gem::Specification.new do |s|
     "README"
   ]
   s.files = [
+    "CHANGELOG",
+    "README",
+    "Rakefile",
+    "VERSION",
+    "active_directory.gemspec",
     "lib/active_directory.rb",
     "lib/active_directory/base.rb",
     "lib/active_directory/computer.rb",
