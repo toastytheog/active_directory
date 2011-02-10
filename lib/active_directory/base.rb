@@ -399,24 +399,26 @@ module ActiveDirectory
 		end
 
 		def get_field_type(name)
-			::Rails.logger.add 0, "Looking for spec_fields[#{self.class.name.to_sym}][#{name.to_sym}]"
-			::ActiveDirectory.special_fields[self.class.name.to_sym][name.to_sym].classify
+			#Extract class name
+			klass = self.class.name[/.*::(.*)/, 1]
+			::Rails.logger.add 0, "special_fields[#{klass.classify.to_sym}][#{name.downcase.to_sym}] = #{::ActiveDirectory.special_fields[klass.classify.to_sym][name.downcase.to_sym]}"
+			type = ::ActiveDirectory.special_fields[klass.classify.to_sym][name.downcase.to_sym]
+			type.to_s.classify unless type.nil?
 		end
 
 		def decode_field(name, value)
-			return value
-			::Rails.logger.add 0, "Encoding #{name}, #{value}"
+			::Rails.logger.add 0, "Decoding #{name}, #{value}"
 			type = get_field_type name
-			return ::ActiveDirectory::const_get(type).decode(value) if ::ActiveDirectory::const_defined? type
+			::Rails.logger.add 0, "Type: #{type}  Const: #{::ActiveDirectory::FieldType::const_get type unless type.nil?}"
+			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
 		def encode_field(name, value)
-			return value
-			::Rails.logger.add 0, "Encoding #{first}, #{name}, #{value}"
+			::Rails.logger.add 0, "Encoding #{name}, #{value}"
 			type = get_field_type name
-			return "Encode #{name} as #{type}"
-			return ::ActiveDirectory::const_get(type).encode(value) if ::ActiveDirectory::const_defined? type
+			::Rails.logger.add 0, "Type: #{type}  Const: #{::ActiveDirectory::FieldType::const_get type}"
+			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
@@ -435,6 +437,8 @@ module ActiveDirectory
 					value = @entry.send(name.to_sym)
 					value = value.first if value.kind_of?(Array) && value.size == 1
 					value = value.to_s if value.nil? || value.size == 1
+					::Rails.logger.add 0, "Decoded as #{decode_field(name, value)}\n"
+					::Rails.logger.add 0, ""
 					return decode_field(name, value)
 				# rescue NoMethodError => e
 				# 	::Rails.logger.add 0, "#{e.inspect}"

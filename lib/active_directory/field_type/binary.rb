@@ -23,7 +23,7 @@
 
 module ActiveDirectory
   module FieldType
-    class Guid
+    class Binary
       #
       # Encodes a hex string into a GUID
       #
@@ -35,7 +35,7 @@ module ActiveDirectory
       # Decodes a binary GUID as a hex string
       #
       def self.decode(guid)
-        guid.unpack("H*")
+        guid.unpack("H*").to_s
       end
     end
   end

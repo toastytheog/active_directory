@@ -45,24 +45,27 @@ module ActiveDirectory
 
     #All objects in the AD
     :Base => {
-      :objectGUID => :binary,
-      :whenCreated => :date,
-      :whenChanged => :date
+      :objectguid => :binary,
+      :whencreated => :date,
+      :whenchanged => :date
     },
 
     #User objects
     :User => {
-      :objectSID => :binary,
-      :msExchMailboxGuid => :binary,
-      :msExchMailboxSecurityDescriptor => :binary,
-      :lastLogonTimestamp => :timestamp,
-      :pwdLastSet => :timestamp,
-      :accountExpires => :timestamp
+      :objectguid => :binary,
+      :whencreated => :date,
+      :whenchanged => :date,
+      :objectsid => :binary,
+      :msexchmailboxguid => :binary,
+      :msexchmailboxsecuritydescriptor => :binary,
+      :lastlogontimestamp => :timestamp,
+      :pwdlastset => :timestamp,
+      :accountexpires => :timestamp
     },
 
     #Group objects
     :Group => {
-      :objectSID => :binary,
+      :objectsid => :binary,
     },
   }
 end
