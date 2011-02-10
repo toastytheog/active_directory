@@ -36,8 +36,6 @@ require 'active_directory/field_type/binary.rb'
 require 'active_directory/field_type/date.rb'
 require 'active_directory/field_type/timestamp.rb'
 
-require 'active_directory/rails/user.rb'
-
 module ActiveDirectory
   #Special Fields
   mattr_accessor :special_fields
