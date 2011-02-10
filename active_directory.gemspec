@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_directory}
-  s.version = "1.1.1"
+  s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Adam T Kerr"]
@@ -31,8 +31,6 @@ Gem::Specification.new do |s|
     "lib/active_directory/field_type/timestamp.rb",
     "lib/active_directory/group.rb",
     "lib/active_directory/member.rb",
-    "lib/active_directory/rails/synchronizer.rb",
-    "lib/active_directory/rails/user.rb",
     "lib/active_directory/user.rb"
   ]
   s.homepage = %q{http://github.com/ajrkerr/active_directory}
