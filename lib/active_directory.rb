@@ -31,7 +31,38 @@ require 'active_directory/user.rb'
 require 'active_directory/group.rb'
 require 'active_directory/computer.rb'
 
-require 'active_directory/password.rb'
-require 'active_directory/timestamp.rb'
+require 'active_directory/field_type/password.rb'
+require 'active_directory/field_type/binary.rb'
+require 'active_directory/field_type/date.rb'
+require 'active_directory/field_type/timestamp.rb'
 
 require 'active_directory/rails/user.rb'
+
+module ActiveDirectory
+  #Special Fields
+  mattr_accessor :special_fields
+  @@special_fields = {
+
+    #All objects in the AD
+    :Base => {
+      :objectGUID => :binary,
+      :whenCreated => :date,
+      :whenChanged => :date
+    },
+
+    #User objects
+    :User => {
+      :objectSID => :binary,
+      :msExchMailboxGuid => :binary,
+      :msExchMailboxSecurityDescriptor => :binary,
+      :lastLogonTimestamp => :timestamp,
+      :pwdLastSet => :timestamp,
+      :accountExpires => :timestamp
+    },
+
+    #Group objects
+    :Group => {
+      :objectSID => :binary,
+    },
+  }
+end

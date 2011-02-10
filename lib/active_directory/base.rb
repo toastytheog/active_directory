@@ -398,27 +398,75 @@ module ActiveDirectory
 			end
 		end
 
-		def method_missing(name, args = []) # :nodoc:
-			name_s = name.to_s.downcase
-			name = name_s.to_sym
-			if name_s[-1,1] == '='
-				@attributes[name_s[0,name_s.size-1].to_sym] = args
-			else
-				if @attributes.has_key?(name)
-					return @attributes[name]
-				elsif @entry
-					begin
-						value = @entry.send(name)
-						value = value.first if value.kind_of?(Array) && value.size == 1
-						value = value.to_s if value.nil? || value.size == 1
-						return value
-					rescue NoMethodError
-						return nil
-					end
-				else
-					super
-				end
-			end
+		def get_field_type(name)
+			::Rails.logger.add 0, "Looking for spec_fields[#{self.class.name.to_sym}][#{name.to_sym}]"
+			::ActiveDirectory.special_fields[self.class.name.to_sym][name.to_sym].classify
 		end
+
+		def decode_field(name, value)
+			return value
+			::Rails.logger.add 0, "Encoding #{name}, #{value}"
+			type = get_field_type name
+			return ::ActiveDirectory::const_get(type).decode(value) if ::ActiveDirectory::const_defined? type
+			return value
+		end
+
+		def encode_field(name, value)
+			return value
+			::Rails.logger.add 0, "Encoding #{first}, #{name}, #{value}"
+			type = get_field_type name
+			return "Encode #{name} as #{type}"
+			return ::ActiveDirectory::const_get(type).encode(value) if ::ActiveDirectory::const_defined? type
+			return value
+		end
+
+		def method_missing(name, args = []) # :nodoc:
+			name = name.to_s.downcase
+
+			if name[-1,1] == '='
+				name.chop!
+				@attributes[name.to_sym] = encode_field(name, args)
+			end
+
+			return decode_field(name, @attributes[name.to_sym]) if @attributes.has_key?(name.to_sym)
+				
+			if @entry
+				# begin
+					value = @entry.send(name.to_sym)
+					value = value.first if value.kind_of?(Array) && value.size == 1
+					value = value.to_s if value.nil? || value.size == 1
+					return decode_field(name, value)
+				# rescue NoMethodError => e
+				# 	::Rails.logger.add 0, "#{e.inspect}"
+				# 	return nil
+				# end
+			end
+
+			super
+		end
+
+		# def method_missing(name, args = []) # :nodoc:
+		# 	name_s = name.to_s.downcase
+		# 	name = name_s.to_sym
+		# 	if name_s[-1,1] == '='
+		# 		@attributes[name_s[0,name_s.size-1].to_sym] = args
+		# 	else
+		# 		if @attributes.has_key?(name)
+		# 			return @attributes[name]
+		# 		elsif @entry
+		# 			begin
+		# 				value = @entry.send(name)
+		# 				value = value.first if value.kind_of?(Array) && value.size == 1
+		# 				value = value.to_s if value.nil? || value.size == 1
+		# 				return value
+		# 			rescue NoMethodError
+		# 				return nil
+		# 			end
+		# 		else
+		# 			super
+		# 		end
+		# 	end
+		# end
+
 	end
 end
