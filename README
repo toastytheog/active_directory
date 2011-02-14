@@ -2,3 +2,5 @@
 
 Ruby Integration with Microsoft's Active Directory system
 
+See documentation on ActiveDirectory::Base for more information.
+
