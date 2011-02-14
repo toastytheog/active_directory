@@ -34,8 +34,16 @@ require 'active_directory/field_type/date.rb'
 require 'active_directory/field_type/timestamp.rb'
 
 module ActiveDirectory
+  
   #Special Fields
-  mattr_accessor :special_fields
+  def self.special_fields
+    @@special_fields
+  end
+
+  def self.special_fields= sp_fields
+    @@special_fields = sp_fields
+  end
+
   @@special_fields = {
 
     #All objects in the AD

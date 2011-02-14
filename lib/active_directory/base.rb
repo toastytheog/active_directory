@@ -69,20 +69,29 @@ module ActiveDirectory
 			"#{@@ldap.get_operation_result.code}: #{@@ldap.get_operation_result.message}"
 		end
 
+		##
+		# Return the last errorcode that ldap generated
 		def self.error_code
 			@@ldap.get_operation_result.code
 		end
 
+		##
+		# Check to see if the last query produced an error
+		# Note: Invalid username/password combinations will not
+		# produce errors
 		def self.error?
-			!success?
+			@@ldap.nil? ? false : @@ldap.get_operation_result.code != 0
 		end
 
-		def self.success?
-			@@ldap.get_operation_result.code == 0
-		end
-
+		##
+		# Check to see if we are connected to the LDAP server
+		# This method will try to connect, if we haven't already
 		def self.connected?
-			@@ldap.bind
+			begin
+				@@ldap.nil? ? false : @@ldap.bind
+			rescue Net::LDAP::LdapError => e
+				false
+			end
 		end
 
 		def self.filter # :nodoc:
@@ -176,6 +185,8 @@ module ActiveDirectory
 		# matching your filter.
 		#
 		def self.find(*args)
+			return false unless connected?
+
 			options = {
 				:filter => NIL_FILTER,
 				:in => ''
