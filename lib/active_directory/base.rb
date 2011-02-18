@@ -150,10 +150,10 @@ module ActiveDirectory
 			#I'm sure there's a better way to do this
 			#Grab the first one, then do the rest
 			key, value = hash.shift
-			f = Net::LDAP::Filter.eq(key, value.to_s)
+			f = Net::LDAP::Filter.eq(key, encode_field(key, value).to_s)
 			
 			hash.each do |key, value|
-				f = f & Net::LDAP::Filter.eq(key, value.to_s)
+				f = f & Net::LDAP::Filter.eq(key, encode_field(key, value).to_s)
 			end
 
 			return f
@@ -406,21 +406,24 @@ module ActiveDirectory
 			end
 		end
 
-		def get_field_type(name)
+		## 
+		# Grabs the field type depending on the class it is called from 
+		# Takes the field name as a parameter
+		def self.get_field_type(name)
 			#Extract class name
-			klass = self.class.name[/.*::(.*)/, 1]
-			type = ::ActiveDirectory.special_fields[klass.classify.to_sym][name.downcase.to_sym]
+			klass = self.name[/.*::(.*)/, 1]
+			type = ::ActiveDirectory.special_fields[klass.classify.to_sym][name.to_s.downcase.to_sym]
 			type.to_s.classify unless type.nil?
 		end
 
-		def decode_field(name, value)
+		def self.decode_field(name, value)
 			#Extract class name
 			type = get_field_type name
 			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
-		def encode_field(name, value)
+		def self.encode_field(name, value)
 			type = get_field_type name
 			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
@@ -441,7 +444,7 @@ module ActiveDirectory
 					value = @entry.send(name.to_sym)
 					value = value.first if value.kind_of?(Array) && value.size == 1
 					value = value.to_s if value.nil? || value.size == 1
-					return decode_field(name, value)
+					return self.class.decode_field(name, value)
 				rescue NoMethodError
 					return nil
 				end

@@ -47,11 +47,11 @@ module ActiveDirectory
   @@special_fields = {
 
     #All objects in the AD
-    :Base => {
-      :objectguid => :binary,
-      :whencreated => :date,
-      :whenchanged => :date
-    },
+    # :Base => {
+    #   :objectguid => :binary,
+    #   :whencreated => :date,
+    #   :whenchanged => :date
+    # },
 
     #User objects
     :User => {
@@ -68,6 +68,9 @@ module ActiveDirectory
 
     #Group objects
     :Group => {
+      :objectguid => :binary,
+      :whencreated => :date,
+      :whenchanged => :date,
       :objectsid => :binary,
     },
   }
