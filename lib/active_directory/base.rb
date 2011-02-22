@@ -411,7 +411,7 @@ module ActiveDirectory
 		# Takes the field name as a parameter
 		def self.get_field_type(name)
 			#Extract class name
-			klass = self.name[/.*::(.*)/, 1]
+			klass = self.name.include?('::') ? self.name[/.*::(.*)/, 1] : self.name
 			type = ::ActiveDirectory.special_fields[klass.classify.to_sym][name.to_s.downcase.to_sym]
 			type.to_s.classify unless type.nil?
 		end
