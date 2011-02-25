@@ -74,6 +74,7 @@ module ActiveDirectory
       :whencreated => :Date,
       :whenchanged => :Date,
       :objectsid => :Binary,
+      :memberof => :DnArray,
     },
   }
 end

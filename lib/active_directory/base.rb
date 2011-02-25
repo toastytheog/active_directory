@@ -171,7 +171,7 @@ module ActiveDirectory
 			hash.each do |key, value|
 				filter &= make_filter(key, value)
 			end
-			puts "Returning Hash #{filter.inspect}"
+
 			return filter
 		end
 
