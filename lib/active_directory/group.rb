@@ -144,7 +144,7 @@ module ActiveDirectory
 				end
 				return @member_groups_r
 			else
-				@member_groups_non_r ||= Group.find(:all, :distinguishedname => @entry.member.delete_if { |g| g.nil? }
+				@member_groups_non_r ||= Group.find(:all, :distinguishedname => @entry.member).delete_if { |g| g.nil? }
 			end
 		end
 
