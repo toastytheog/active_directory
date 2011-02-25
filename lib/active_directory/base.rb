@@ -193,7 +193,7 @@ module ActiveDirectory
 		# method, partial searches are allowed.
 		#
 		# This method always returns an array if the caller specifies
-		# :all for the search type (first argument).  If no results
+		# :all for the search e (first argument).  If no results
 		# are found, the array will be empty.
 		#
 		# If you call find(:first, ...), you will either get an object
@@ -438,12 +438,14 @@ module ActiveDirectory
 
 		def self.decode_field(name, value) # :nodoc:
 			type = get_field_type name
+			puts "Decoding #{name} as #{value}"
 			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
 		def self.encode_field(name, value) # :nodoc:
 			type = get_field_type name
+			puts "Encoding #{name} as #{value}"
 			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
