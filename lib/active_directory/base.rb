@@ -438,14 +438,12 @@ module ActiveDirectory
 
 		def self.decode_field(name, value) # :nodoc:
 			type = get_field_type name
-			puts "Decoding #{name} as #{value}"
 			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
 		def self.encode_field(name, value) # :nodoc:
 			type = get_field_type name
-			puts "Encoding #{name} as #{value}"
 			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end

@@ -32,6 +32,7 @@ require 'active_directory/field_type/password.rb'
 require 'active_directory/field_type/binary.rb'
 require 'active_directory/field_type/date.rb'
 require 'active_directory/field_type/timestamp.rb'
+require 'active_directory/field_type/dn_array.rb'
 
 module ActiveDirectory
   
@@ -75,6 +76,7 @@ module ActiveDirectory
       :whenchanged => :Date,
       :objectsid => :Binary,
       :memberof => :DnArray,
+      :member => :DnArray,
     },
   }
 end

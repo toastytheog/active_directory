@@ -25,17 +25,14 @@ module ActiveDirectory
 			# Encodes an array of objects into a list of dns
 			# 
 			def self.encode(obj_array)
-				#obj_array.collect { |obj| obj.dn }
+				obj_array.collect { |obj| obj.dn }
 			end
 
 			#
 			# Decodes a list of DNs into the objects that they are
 			#
 			def self.decode(dn_array)
-				# Prepare a list of all filters
-
-				# Do the search
-				#@groups ||= memberOf.collect { |dn| Group.find_by_distinguishedName(dn) }
+				Base.find( :all, :distinguishedname => dn_array)
 			end
 		end
 	end

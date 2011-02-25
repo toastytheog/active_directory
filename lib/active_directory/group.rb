@@ -116,7 +116,7 @@ module ActiveDirectory
 				end
 				return @member_users_r
 			else
-				@member_users_non_r ||= @entry.member.collect { |dn| User.find_by_distinguishedName(dn) }.delete_if { |u| u.nil? }
+				@member_users_non_r ||= User.find(:all, :distinguishedname => @entry.member).delete_if { |u| u.nil? }
 			end
 		end
 
@@ -144,7 +144,7 @@ module ActiveDirectory
 				end
 				return @member_groups_r
 			else
-				@member_groups_non_r ||= @entry.member.collect { |dn| Group.find_by_distinguishedName(dn) }.delete_if { |g| g.nil? }
+				@member_groups_non_r ||= Group.find(:all, :distinguishedname => @entry.member.delete_if { |g| g.nil? }
 			end
 		end
 
@@ -153,7 +153,7 @@ module ActiveDirectory
 		#
 		def groups
 			return [] if memberOf.nil?
-			@groups ||= memberOf.collect { |group_dn| Group.find_by_distinguishedName(group_dn) }
+			@groups ||= Group.find(:all, :distinguishedname => @entry.memberOf).delete_if { |g| g.nil? }
 		end
 	end
 end
