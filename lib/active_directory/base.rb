@@ -144,19 +144,35 @@ module ActiveDirectory
 			!@attributes.empty?
 		end
 
+		##
+		# Makes a single filter from a given key and value
+		# It will try to encode an array if there is a process for it
+		# Otherwise, it will treat it as an or condition
+		def self.make_filter(key, value)
+			#Join arrays using OR condition
+			if value.is_a? Array
+				filter = ~NIL_FILTER
+
+				value.each do |v|
+					filter |= Net::LDAP::Filter.eq(key, encode_field(key, v).to_s)
+				end
+			else
+				filter = Net::LDAP::Filter.eq(key, encode_field(key, value).to_s)
+			end
+
+			return filter
+		end
+
 		def self.make_filter_from_hash(hash) # :nodoc:
 			return NIL_FILTER if hash.nil? || hash.empty?
 
-			#I'm sure there's a better way to do this
-			#Grab the first one, then do the rest
-			key, value = hash.shift
-			f = Net::LDAP::Filter.eq(key, encode_field(key, value).to_s)
-			
-			hash.each do |key, value|
-				f = f & Net::LDAP::Filter.eq(key, encode_field(key, value).to_s)
-			end
+			filter = NIL_FILTER
 
-			return f
+			hash.each do |key, value|
+				filter &= make_filter(key, value)
+			end
+			puts "Returning Hash #{filter.inspect}"
+			return filter
 		end
 
 		#
@@ -188,14 +204,17 @@ module ActiveDirectory
 			return false unless connected?
 
 			options = {
-				:filter => NIL_FILTER,
+				:filter => (args[1].nil?) ? NIL_FILTER : args[1],
 				:in => ''
 			}
-			options.merge!(:filter => args[1]) unless args[1].nil?
+
+			# 
 			options[:in] = [ options[:in].to_s, @@settings[:base] ].delete_if { |part| part.empty? }.join(",")
+
 			if options[:filter].is_a? Hash
 				options[:filter] = make_filter_from_hash(options[:filter])
 			end
+
 			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
 			
 			if (args.first == :all)
@@ -411,19 +430,19 @@ module ActiveDirectory
 		# Takes the field name as a parameter
 		def self.get_field_type(name)
 			#Extract class name
+			throw "Invalid field name" if name.nil?
 			klass = self.name.include?('::') ? self.name[/.*::(.*)/, 1] : self.name
-			type = ::ActiveDirectory.special_fields[klass.classify.to_sym][name.to_s.downcase.to_sym]
-			type.to_s.classify unless type.nil?
+			type = ::ActiveDirectory.special_fields[klass.to_sym][name.to_s.downcase.to_sym]
+			type.to_s unless type.nil?
 		end
 
-		def self.decode_field(name, value)
-			#Extract class name
+		def self.decode_field(name, value) # :nodoc:
 			type = get_field_type name
 			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
 		end
 
-		def self.encode_field(name, value)
+		def self.encode_field(name, value) # :nodoc:
 			type = get_field_type name
 			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
 			return value
@@ -445,7 +464,7 @@ module ActiveDirectory
 					value = value.first if value.kind_of?(Array) && value.size == 1
 					value = value.to_s if value.nil? || value.size == 1
 					return self.class.decode_field(name, value)
-				rescue NoMethodError
+				rescue NoMethodError => e
 					return nil
 				end
 			end
