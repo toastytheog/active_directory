@@ -5,18 +5,18 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_directory}
-  s.version = "1.3.0"
+  s.version = "1.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Adam T Kerr"]
-  s.date = %q{2011-02-25}
+  s.date = %q{2011-02-28}
   s.description = %q{ActiveDirectory uses Net::LDAP to provide a means of accessing and modifying an Active Directory data store.  This is a fork of the activedirectory gem.}
   s.email = %q{ajrkerr@gmail.com}
   s.extra_rdoc_files = [
-    "README"
+    "README.md"
   ]
   s.files = [
-    "README",
+    "README.md",
     "Rakefile",
     "VERSION",
     "active_directory.gemspec",
@@ -27,8 +27,11 @@ Gem::Specification.new do |s|
     "lib/active_directory/field_type/binary.rb",
     "lib/active_directory/field_type/date.rb",
     "lib/active_directory/field_type/dn_array.rb",
+    "lib/active_directory/field_type/group_dn_array.rb",
+    "lib/active_directory/field_type/member_dn_array.rb",
     "lib/active_directory/field_type/password.rb",
     "lib/active_directory/field_type/timestamp.rb",
+    "lib/active_directory/field_type/user_dn_array.rb",
     "lib/active_directory/group.rb",
     "lib/active_directory/member.rb",
     "lib/active_directory/user.rb"
