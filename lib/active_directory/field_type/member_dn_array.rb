@@ -20,7 +20,7 @@
 
 module ActiveDirectory
 	module FieldType
-		class DnArray
+		class MemberDnArray
 			#
 			# Encodes an array of objects into a list of dns
 			# 
@@ -33,7 +33,7 @@ module ActiveDirectory
 			#
 			def self.decode(dn_array)
 				# How to do user or group?
-				Base.find( :all, :distinguishedname => dn_array)
+				User.find( :all, :distinguishedname => dn_array) + Group.find(:all, :distinguishedname => dn_array)
 			end
 		end
 	end

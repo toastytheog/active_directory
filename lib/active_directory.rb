@@ -66,7 +66,7 @@ module ActiveDirectory
       :lastlogontimestamp => :Timestamp,
       :pwdlastset => :Timestamp,
       :accountexpires => :Timestamp,
-      :memberof => :DnArray,
+      :memberof => :MemberDnArray,
     },
 
     #Group objects
@@ -75,8 +75,8 @@ module ActiveDirectory
       :whencreated => :Date,
       :whenchanged => :Date,
       :objectsid => :Binary,
-      :memberof => :DnArray,
-      :member => :DnArray,
+      :memberof => :GroupDnArray,
+      :member => :MemberDnArray,
     },
   }
 end
