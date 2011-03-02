@@ -37,6 +37,7 @@ ActiveDirectory::Group.find(:all)
 
 #Caching is disabled by default, to enable:
 ActiveDirectory::Base.enable_cache
-ActiveDirecotry::Base.disable_cache
+ActiveDirectory::Base.disable_cache
+ActiveDirectory::Base.cache?
 
 </pre>
