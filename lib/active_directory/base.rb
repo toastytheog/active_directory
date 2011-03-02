@@ -32,6 +32,9 @@ module ActiveDirectory
 		NIL_FILTER = Net::LDAP::Filter.pres('cn')
 
 		@@ldap = nil
+		@@ldap_connected = false
+		@@caching = false
+		@@cache = {}
 
 		#
 		# Configures the connection for the Ruby/ActiveDirectory library.
@@ -88,10 +91,37 @@ module ActiveDirectory
 		# This method will try to connect, if we haven't already
 		def self.connected?
 			begin
-				@@ldap.nil? ? false : @@ldap.bind
+				@@ldap_connected ||= @@ldap.bind unless @@ldap.nil?
+				@@ldap_connected
 			rescue Net::LDAP::LdapError => e
 				false
 			end
+		end
+
+		##
+		# Check to see if result caching is enabled
+		def self.cache?
+			@@caching
+		end
+
+		##
+		# Clears the cache
+		def self.clear_cache
+			@@cache = {}
+		end
+
+		##
+		# Enable caching for queries against the DN only
+		# This is to prevent membership lookups from hitting the 
+		# AD unnecessarilly
+		def self.enable_cache
+			@@caching = true
+		end
+
+		##
+		# Disable caching
+		def self.disable_cache
+			@@caching = false
 		end
 
 		def self.filter # :nodoc:
@@ -208,7 +238,9 @@ module ActiveDirectory
 				:in => ''
 			}
 
-			# 
+			cached_results = find_cached_results(args[1])
+			return cached_results unless cached_results.nil?
+
 			options[:in] = [ options[:in].to_s, @@settings[:base] ].delete_if { |part| part.empty? }.join(",")
 
 			if options[:filter].is_a? Hash
@@ -216,7 +248,7 @@ module ActiveDirectory
 			end
 
 			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
-			
+
 			if (args.first == :all)
 				find_all(options)
 			elsif (args.first == :first)
@@ -226,17 +258,54 @@ module ActiveDirectory
 			end
 		end
 
+		##
+		# Filters the cache result by the object type we're looking for
+		#
+		def self.filter_cache_result(result)
+			result.delete_if { |entry| !entry.kind_of? self }
+		end
+
+		##
+		# Searches the cache and returns the result
+		#
+		def self.find_cached_results(filters)
+			return nil unless cache?
+
+			#Check to see if we're only looking for :distinguishedname
+			if filters.is_a? Hash and filters.keys == [:distinguishedname]
+				#Find keys we're looking up, convert to array
+				dns = filters[:distinguishedname]
+
+				if dns.kind_of? Array
+					#Check to see if all of the results are in teh cache
+					return nil unless (dns & @@cache.keys == dns)
+
+					result = []
+
+					dns.each { |dn| result << @@cache[dn] }
+
+					return filter_cache_result(result) if result.size == dns.size
+				else
+					return @@cache[dns] if @@cache.key? dns and @@cache[dns].is_a? self.class
+				end
+			end
+		end
+
 		def self.find_all(options)
 			results = []
 			@@ldap.search(:filter => options[:filter], :base => options[:in], :return_result => false) do |entry|
-				results << new(entry)
+				ad_entry = new(entry)
+				@@cache[ad_entry.dn] = ad_entry
+				results << ad_entry
 			end
 			results
 		end
 
 		def self.find_first(options)
 			@@ldap.search(:filter => options[:filter], :base => options[:in], :return_result => false) do |entry|
-				return new(entry)
+				ad_entry = new(entry)
+				@@cache[ad_entry.dn] = ad_entry
+				return ad_entry
 			end
 		end
 

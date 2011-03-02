@@ -32,8 +32,11 @@ module ActiveDirectory
 			# Decodes a list of DNs into the objects that they are
 			#
 			def self.decode(dn_array)
-				# How to do user or group?
-				User.find( :all, :distinguishedname => dn_array) + Group.find(:all, :distinguishedname => dn_array)
+				# Ensures that the objects are cast correctly
+				users = [User.find( :all, :distinguishedname => dn_array)].flatten
+				groups = [Group.find(:all, :distinguishedname => dn_array)].flatten
+
+				users + groups
 			end
 		end
 	end
