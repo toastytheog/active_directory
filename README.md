@@ -4,6 +4,9 @@ Ruby Integration with Microsoft's Active Directory system based on original code
 
 See documentation on ActiveDirectory::Base for more information.
 
+Caching:
+Queries for membership and group membership are based on the distinguished name of objects.  Doing a lot of queries, especially for a Rails app, is a sizable slowdown.  To alleviate the problem, I've implemented a very basic cache for queries which search by :distinguishedname.  This is diabled by default.  All other queries are unaffected.
+
 
 A code example is worth a thousand words:
 
@@ -31,4 +34,9 @@ ActiveDirectory::User.find(:all)
 ActiveDirectory::User.find(:first, :userprincipalname => "john.smith@domain.com")
 
 ActiveDirectory::Group.find(:all)
+
+#Caching is disabled by default, to enable:
+ActiveDirectory::Base.enable_cache
+ActiveDirecotry::Base.disable_cache
+
 </pre>
