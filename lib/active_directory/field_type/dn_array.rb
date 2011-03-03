@@ -33,7 +33,7 @@ module ActiveDirectory
 			#
 			def self.decode(dn_array)
 				# How to do user or group?
-				Base.find( :all, :distinguishedname => dn_array)
+				Base.find(:all, :distinguishedname => dn_array)
 			end
 		end
 	end

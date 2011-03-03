@@ -33,10 +33,14 @@ module ActiveDirectory
 			#
 			def self.decode(dn_array)
 				# Ensures that the objects are cast correctly
-				users = [User.find( :all, :distinguishedname => dn_array)].flatten
-				groups = [Group.find(:all, :distinguishedname => dn_array)].flatten
+				users = User.find(:all, :distinguishedname => dn_array)
+				groups = Group.find(:all, :distinguishedname => dn_array)
 
-				users + groups
+				arr = Array.new
+				arr << users unless users.nil?
+				arr << groups unless groups.nil?
+
+				return arr.flatten
 			end
 		end
 	end

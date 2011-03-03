@@ -239,7 +239,7 @@ module ActiveDirectory
 			}
 
 			cached_results = find_cached_results(args[1])
-			return cached_results unless cached_results.nil?
+			return cached_results if cached_results or cached_results.nil?
 
 			options[:in] = [ options[:in].to_s, @@settings[:base] ].delete_if { |part| part.empty? }.join(",")
 
@@ -259,54 +259,55 @@ module ActiveDirectory
 		end
 
 		##
-		# Filters the cache result by the object type we're looking for
-		#
-		def self.filter_cache_result(result)
-			result.delete_if { |entry| !entry.kind_of? self }
-		end
-
-		##
 		# Searches the cache and returns the result
+		# Returns false on failure, nil on wrong object type
 		#
 		def self.find_cached_results(filters)
-			return nil unless cache?
+			return false unless cache?
 
 			#Check to see if we're only looking for :distinguishedname
-			if filters.is_a? Hash and filters.keys == [:distinguishedname]
-				#Find keys we're looking up, convert to array
-				dns = filters[:distinguishedname]
+			return false unless filters.is_a? Hash and filters.keys == [:distinguishedname]
 
-				if dns.kind_of? Array
-					#Check to see if all of the results are in teh cache
-					return nil unless (dns & @@cache.keys == dns)
+			#Find keys we're looking up
+			dns = filters[:distinguishedname]
 
-					result = []
+			if dns.kind_of? Array
+				result = []
 
-					dns.each { |dn| result << @@cache[dn] }
+				dns.each do |dn| 
+					entry = @@cache[dn]
 
-					return filter_cache_result(result) if result.size == dns.size
-				else
-					return @@cache[dns] if @@cache.key? dns and @@cache[dns].is_a? self.class
+					#If the object isn't in the cache just run the query
+					return false if entry.nil?
+
+					#Only permit objects of the type we're looking for
+					result << entry if entry.kind_of? self
 				end
+
+				return result
+			else
+				return false unless @@cache.key? dns
+				return @@cache[dns] if @@cache[dns].is_a? self
 			end
 		end
 
 		def self.find_all(options)
 			results = []
-			@@ldap.search(:filter => options[:filter], :base => options[:in], :return_result => false) do |entry|
-				ad_entry = new(entry)
-				@@cache[ad_entry.dn] = ad_entry
-				results << ad_entry
+			ldap_objs = @@ldap.search(:filter => options[:filter], :base => options[:in])
+
+			ldap_objs.each do |entry|
+				ad_obj = new(entry)
+				@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
+				results << ad_obj
 			end
+
 			results
 		end
 
 		def self.find_first(options)
-			@@ldap.search(:filter => options[:filter], :base => options[:in], :return_result => false) do |entry|
-				ad_entry = new(entry)
-				@@cache[ad_entry.dn] = ad_entry
-				return ad_entry
-			end
+			ad_obj = new(@@ldap.search(:filter => options[:filter], :base => options[:in]))
+			@@cache[ad_obj.dn] = ad_obj unless ad_obj.instance_of? Base
+			return ad_obj
 		end
 
 		def self.method_missing(name, *args) # :nodoc:
@@ -336,7 +337,7 @@ module ActiveDirectory
 
 		def ==(other) # :nodoc:
 			return false if other.nil?
-			other.objectGUID == objectGUID
+			other[:objectguid] == get_attr(:objectguid)
 		end
 
 		#
@@ -386,7 +387,7 @@ module ActiveDirectory
 					values = values.collect { |v| v.to_s }
 
 					current_value = begin
-						@entry.send(attribute)
+						@entry[attribute]
 					rescue NoMethodError
 						nil
 					end
@@ -494,27 +495,71 @@ module ActiveDirectory
 			end
 		end
 
+		##
+		# Pull the class we're in
+		# This isn't quite right, as extending the object does funny things to how we
+		# lookup objects
+		def self.class_name
+			@klass ||= (self.name.include?('::') ? self.name[/.*::(.*)/, 1] : self.name)
+		end
+
 		## 
 		# Grabs the field type depending on the class it is called from 
 		# Takes the field name as a parameter
 		def self.get_field_type(name)
 			#Extract class name
 			throw "Invalid field name" if name.nil?
-			klass = self.name.include?('::') ? self.name[/.*::(.*)/, 1] : self.name
-			type = ::ActiveDirectory.special_fields[klass.to_sym][name.to_s.downcase.to_sym]
+			type = ::ActiveDirectory.special_fields[class_name.to_sym][name.to_s.downcase.to_sym]
 			type.to_s unless type.nil?
 		end
 
+		@types = {}
+
 		def self.decode_field(name, value) # :nodoc:
 			type = get_field_type name
-			return ::ActiveDirectory::FieldType::const_get(type).decode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
+			if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
+				return ::ActiveDirectory::FieldType::const_get(type).decode(value)
+			end
 			return value
 		end
 
 		def self.encode_field(name, value) # :nodoc:
 			type = get_field_type name
-			return ::ActiveDirectory::FieldType::const_get(type).encode(value) if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
+			if !type.nil? and ::ActiveDirectory::FieldType::const_defined? type
+				return ::ActiveDirectory::FieldType::const_get(type).encode(value)
+			end
 			return value
+		end
+
+	  ##
+	  # Reads the array of values for the provided attribute. The attribute name
+	  # is canonicalized prior to reading. Returns an empty array if the
+	  # attribute does not exist.
+	  def [](name)
+	  	get_attr(name)
+	  end
+
+	  ##
+	  # Ensure that flattening works correctly
+	  def to_ary
+	  end
+
+	  def valid_attribute? name
+	  	@attributes.has_key?(name) || @entry.attribute_names.include?(name)
+	  end
+
+		def get_attr(name)
+			name = name.to_s.downcase
+
+			return decode_field(name, @attributes[name.to_sym]) if @attributes.has_key?(name.to_sym)
+				
+			if @entry.attribute_names.include? name.to_sym
+				value = @entry[name.to_sym]
+				value = value.first if value.kind_of?(Array) && value.size == 1
+				value = value.to_s if value.nil? || value.size == 1
+				value = nil.to_s if value.empty?
+				return self.class.decode_field(name, value)
+			end
 		end
 
 		def method_missing(name, args = []) # :nodoc:
@@ -525,20 +570,11 @@ module ActiveDirectory
 				@attributes[name.to_sym] = encode_field(name, args)
 			end
 
-			return decode_field(name, @attributes[name.to_sym]) if @attributes.has_key?(name.to_sym)
-				
-			if @entry
-				begin
-					value = @entry.send(name.to_sym)
-					value = value.first if value.kind_of?(Array) && value.size == 1
-					value = value.to_s if value.nil? || value.size == 1
-					return self.class.decode_field(name, value)
-				rescue NoMethodError => e
-					return nil
-				end
+			if valid_attribute? name.to_sym
+				get_attr(name)
+			else
+				super
 			end
-
-			super
 		end
 
 	end

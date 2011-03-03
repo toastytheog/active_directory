@@ -32,7 +32,7 @@ module ActiveDirectory
       # Decodes a binary GUID as a hex string
       #
       def self.decode(guid)
-        guid.unpack("H*").to_s
+        guid.unpack("H*").first.to_s
       end
     end
   end
