@@ -531,19 +531,6 @@ module ActiveDirectory
 			return value
 		end
 
-	  ##
-	  # Reads the array of values for the provided attribute. The attribute name
-	  # is canonicalized prior to reading. Returns an empty array if the
-	  # attribute does not exist.
-	  def [](name)
-	  	get_attr(name)
-	  end
-
-	  ##
-	  # Ensure that flattening works correctly
-	  def to_ary
-	  end
-
 	  def valid_attribute? name
 	  	@attributes.has_key?(name) || @entry.attribute_names.include?(name)
 	  end
@@ -562,13 +549,27 @@ module ActiveDirectory
 			end
 		end
 
+		def set_attr(name, value)
+			@attributes[name.to_sym] = encode_field(name, value)
+		end
+
+		##
+	  # Reads the array of values for the provided attribute. The attribute name
+	  # is canonicalized prior to reading. Returns an empty array if the
+	  # attribute does not exist.
+	  alias [] get_attr
+	  alias []= set_attr
+
+	  ##
+	  # Weird fluke with flattening, probably because of above attribute
+	  def to_ary
+	  end
+
+
 		def method_missing(name, args = []) # :nodoc:
 			name = name.to_s.downcase
 
-			if name[-1,1] == '='
-				name.chop!
-				@attributes[name.to_sym] = encode_field(name, args)
-			end
+			return set_attr(name.chop, args) if name[-1] == '='
 
 			if valid_attribute? name.to_sym
 				get_attr(name)

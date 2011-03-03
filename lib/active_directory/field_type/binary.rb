@@ -25,7 +25,7 @@ module ActiveDirectory
       # Encodes a hex string into a GUID
       #
       def self.encode(hex_string)
-        hex_string.to_a.pack("H*")
+        [hex_string].pack("H*")
       end
 
       #
