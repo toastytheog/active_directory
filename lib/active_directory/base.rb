@@ -305,7 +305,9 @@ module ActiveDirectory
 		end
 
 		def self.find_first(options)
-			ad_obj = new(@@ldap.search(:filter => options[:filter], :base => options[:in])[0])
+                        ldap_result = @@ldap.search(:filter => options[:filter], :base => options[:in])
+                        return nil if ldap_result.empty?
+			ad_obj = new(ldap_result[0])
 			@@cache[ad_obj.dn] = ad_obj unless ad_obj.instance_of? Base
 			return ad_obj
 		end
