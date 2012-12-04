@@ -24,7 +24,7 @@ module ActiveDirectory
 
 		UAC_ACCOUNT_DISABLED = 0x0002
 		UAC_NORMAL_ACCOUNT   = 0x0200 # 512
-		UAC_PASSWORD_NEVER_EXPIRES = 0x10200 #65536
+		UAC_PASSWORD_NEVER_EXPIRES = 0x10000 #65536
 
 		def self.filter # :nodoc:
 			Net::LDAP::Filter.eq(:objectClass,'user') & ~Net::LDAP::Filter.eq(:objectClass,'computer')
