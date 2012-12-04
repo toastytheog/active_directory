@@ -129,15 +129,6 @@ module ActiveDirectory
 		end
 
 		#
-		# Returns true if the user should be able to log in with a correct
-		# password (essentially, their account is not disabled or locked
-		# out).
-		#
-		def can_login?
-			!disabled? && !locked?
-		end
-
-		#
 		# Change the password for this account.
 		#
 		# This operation requires that the bind user specified in
