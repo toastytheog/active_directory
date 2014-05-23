@@ -34,11 +34,10 @@ module ActiveDirectory
 		attr_reader :name
 		attr_reader :parent
 
-		def initialize(type, name, node = nil) #:nodoc:
-			@type = type
-			@name = name
-			@node = node
-		end
+		#def initialize(type, name, node = nil) #:nodoc:
+		#	@type = type
+		##	@node = node
+		#end
 
 		#
 		# Creates a starting OU (Organizational Unit) dn part.
