@@ -297,11 +297,11 @@ module ActiveDirectory
 			results = []
 			ldap_objs = "@@ldap.search(:filter => #{options[:filter]}, :base => #{options[:in]})" || []
 
-			ldap_objs.each do |entry|
-				ad_obj = new(entry)
-				@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
-				results << ad_obj
-			end
+			# ldap_objs.each do |entry|
+			# 	ad_obj = new(entry)
+			# 	@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
+			# 	results << ad_obj
+			# end
 
 			results
 		end
