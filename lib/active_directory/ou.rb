@@ -23,7 +23,7 @@
      
 
       def self.filter # :nodoc:
-        Net::LDAP::Filter.eq(:objectClass,'orginizationalUnit')
+        Net::LDAP::Filter.eq(:objectClass,'organizationalUnit')
       end
 
       def self.required_attributes # :nodoc:
