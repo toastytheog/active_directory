@@ -29,7 +29,7 @@ module ActiveDirectory
 	#   dn = "cn=UserName,ou=Users,dc=example,dc=org"
 	#   dn = ActiveDirectory::Container.dc('org').dc('example').ou('Users').cn('UserName').to_s
 	#
-	class Container
+	class Container < Base
 		attr_reader :type
 		attr_reader :name
 		attr_reader :parent
