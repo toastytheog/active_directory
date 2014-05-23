@@ -248,8 +248,9 @@ module ActiveDirectory
 			if options[:filter].is_a? Hash
 				options[:filter] = make_filter_from_hash(options[:filter])
 			end
-
-			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
+			if options[:filter] == NIL_FILTER
+				options[:filter] = filter
+			end
 
 			if (args.first == :all)
 				find_all(options)
@@ -296,8 +297,6 @@ module ActiveDirectory
 		def self.find_all(options)
 			results = []
 			ldap_objs = @@ldap.search(:filter => options[:filter], :base => options[:in]) || []
-			puts self.filter
-			puts filter
 			ldap_objs.each do |entry|
 				ad_obj = new(entry)
 				@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
