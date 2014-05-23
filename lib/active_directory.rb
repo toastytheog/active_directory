@@ -26,6 +26,7 @@ require 'active_directory/member.rb'
 
 require 'active_directory/user.rb'
 require 'active_directory/group.rb'
+require 'active_directory/ou.rb'
 require 'active_directory/computer.rb'
 
 require 'active_directory/field_type/password.rb'
