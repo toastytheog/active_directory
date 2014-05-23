@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "lib/active_directory/base.rb",
     "lib/active_directory/computer.rb",
     "lib/active_directory/container.rb",
+    "lib/active_directory/ou.rb",
     "lib/active_directory/field_type/binary.rb",
     "lib/active_directory/field_type/date.rb",
     "lib/active_directory/field_type/dn_array.rb",
