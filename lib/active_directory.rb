@@ -84,7 +84,7 @@ module ActiveDirectory
       :member => :MemberDnArray,
     },
     :Ou => {
-      :distinguisedname => :Binary
+      :distinguisedname => :Binary,
       :objectguid => :Binary,
       :whencreated => :Date,
       :whenchanged => :Date,
