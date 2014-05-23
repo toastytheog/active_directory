@@ -295,7 +295,7 @@ module ActiveDirectory
 
 		def self.find_all(options)
 			results = []
-			ldap_objs = @@ldap.search(:filter => options[:filter], :base => options[:in]) || []
+			ldap_objs = "@@ldap.search(:filter => #{options[:filter]}, :base => #{options[:in]})" || []
 
 			ldap_objs.each do |entry|
 				ad_obj = new(entry)
