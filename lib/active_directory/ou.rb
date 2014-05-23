@@ -27,7 +27,7 @@
       end
 
       def self.required_attributes # :nodoc:
-        { :objectClass => [ 'top', 'orginizationalUnit' ] }
+        {}
       end
 
       def reload # :nodoc:
