@@ -198,7 +198,7 @@ module ActiveDirectory
 		def self.make_filter_from_hash(hash) # :nodoc:
 			return NIL_FILTER if hash.nil? || hash.empty?
 
-			filter = []
+			filter = self.filter
 
 			hash.each do |key, value|
 				filter &= make_filter(key, value)
