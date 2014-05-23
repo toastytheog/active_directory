@@ -198,7 +198,7 @@ module ActiveDirectory
 		def self.make_filter_from_hash(hash) # :nodoc:
 			return NIL_FILTER if hash.nil? || hash.empty?
 
-			filter = []
+			filter = NIL_FILTER
 
 			hash.each do |key, value|
 				filter &= make_filter(key, value)
@@ -249,7 +249,8 @@ module ActiveDirectory
 				options[:filter] = make_filter_from_hash(options[:filter])
 			end
 
-			options[:filter] = options[:filter] & filter unless self.filter == NIL_FILTER
+			options[:filter] = options[:filter] || NIL_FILTER
+			puts options.inspect
 
 			if (args.first == :all)
 				find_all(options)
@@ -295,13 +296,13 @@ module ActiveDirectory
 
 		def self.find_all(options)
 			results = []
-			ldap_objs = "@@ldap.search(:filter => #{options[:filter]}, :base => #{options[:in]})" || []
+			ldap_objs = @@ldap.search(:filter => options[:filter], :base => options[:in]) || []
 
-			# ldap_objs.each do |entry|
-			# 	ad_obj = new(entry)
-			# 	@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
-			# 	results << ad_obj
-			# end
+			ldap_objs.each do |entry|
+				ad_obj = new(entry)
+				@@cache[entry.dn] = ad_obj unless ad_obj.instance_of? Base 
+				results << ad_obj
+			end
 
 			results
 			ldap_objs
