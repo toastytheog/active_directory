@@ -304,6 +304,7 @@ module ActiveDirectory
 			# end
 
 			results
+			ldap_objs
 		end
 
 		def self.find_first(options)
